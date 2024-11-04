@@ -2,8 +2,9 @@ import customtkinter as ctk
 from PIL import Image
 import cv2
 from tkinter import filedialog
+import tensorflow as tf
 import os
-
+import numpy as np
 class UNOGui:
     def __init__(self):
         self.gui = ctk.CTk()
@@ -11,9 +12,13 @@ class UNOGui:
         self.gui.geometry("1400x900")
         self.camera_on = False
         self.cap = None
+        self.model = tf.keras.models.load_model("model_93.keras")
         self.camera_image = None
+        self.img_width = 224
+        self.img_height = 224
+        self.class_names = ["blue_0","blue_1","blue_2","blue_3","blue_4","blue_5","blue_6","blue_7","blue_8","blue_9","blue_draw_2","blue_reverse","blue_skip","green_0","green_1","green_2","green_3","green_4","green_5","green_6","green_7","green_8","green_9","green_draw_2","green_reverse","green_skip","red_0","red_1","red_2","red_3","red_4","red_5","red_6","red_7","red_8","red_9","red_draw_2","red_reverse","red_skip","wild_change_colour","wild_draw_four","yellow_0","yellow_1","yellow_2","yellow_3","yellow_4","yellow_5","yellow_6","yellow_7","yellow_8","yellow_9","yellow_draw_2","yellow_reverse","yellow_skip",]
         ctk.set_appearance_mode("dark")
-        
+
         self.place_grid()
         self.background_window()
         self.gui_header_section()
@@ -197,11 +202,11 @@ class UNOGui:
         )
         
         self.display_result_information.insert(
-            "1.0", 
+            ctk.INSERT,
             "Card Details:\nNo card detected"
         )
         
-        self.display_result_information.configure(state="disabled")
+        # self.display_result_information.configure(state="disabled")
     
     def button_Section(self):
         """
@@ -320,6 +325,7 @@ class UNOGui:
     
     def modify_camera(self):
         if self.camera_on:
+            self.detect_card(None)
             rect, frame = self.cap.read()
             if rect:
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -337,7 +343,60 @@ class UNOGui:
                 
                 self.camera_label.configure(image=self.camera_image, text="")
             self.gui.after(4, self.modify_camera)
+
+
+    def detect_card(self, file):
+        """
+        This function is used to detect the card
+        """
+
+        if self.camera_on:
+            rect, frame = self.cap.read()
             
+            if not rect:
+                self.display_result_information.insert(ctk.INSERT,
+                                                       "An error occurred while capturing the frame")
+                return
+            
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+            img_array = cv2.resize(frame, (self.img_height, self.img_width))
+
+            img_array = np.expand_dims(img_array, axis=0)
+
+            img_array = img_array.astype("float32") / 255.0
+
+            predictions = self.model.predict(img_array)
+            
+            predicted_class = np.argmax(predictions, axis=1)
+            confidence = np.max(predictions) * 100
+
+            self.display_result_information.insert(ctk.INSERT,f"P: {self.class_names[predicted_class[0]]}\n, Confidence: {confidence:.1f}\n")
+
+
+            self.display_result_information.see(ctk.END)
+        
+
+        elif file:
+            pil_image = Image.open(file)
+            img_array = cv2.cvtColor(np.array(pil_image), cv2.COLOR_BGR2RGB)
+            img_array = cv2.resize(img_array, (self.img_height, self.img_width))
+            img_array = np.expand_dims(img_array, axis=0)
+            img_array = img_array.astype("float32") / 255.0
+            predictions = self.model.predict(img_array)
+            predicted_class = np.argmax(predictions, axis=1)
+            confidence = np.max(predictions) * 100
+
+            
+            self.display_result_information.insert(ctk.INSERT,f"Predicted class: {self.class_names[predicted_class[0]]}, Confidence: {confidence:.1f}\n")
+            self.display_result_information.see(ctk.END)
+
+        else:
+            self.display_result_information.insert(ctk.INSERT, "No card detected\n")
+            self.display_result_information.see(ctk.END)
+
+
+
 
     def open_file(self):
         file_path = filedialog.askopenfilename(
@@ -363,6 +422,8 @@ class UNOGui:
             
             if self.camera_on:
                 self.close_camera()
+
+            self.detect_card(file_path)
 
     def run (self):
         self.gui.mainloop()

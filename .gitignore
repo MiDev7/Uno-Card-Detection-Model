@@ -2,4 +2,9 @@ trial.py
 *.JPG
 *.jpg
 *.h5
-Uno\ Dataset/*
+/Uno Dataset/
+/Uno Dataset copy/
+*.keras
+
+!model_93.keras
+.DS_Store
