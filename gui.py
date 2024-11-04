@@ -5,6 +5,7 @@ from tkinter import filedialog
 import tensorflow as tf
 import os
 import numpy as np
+from tensorflow.keras.utils import img_to_array, load_img
 class UNOGui:
     def __init__(self):
         self.gui = ctk.CTk()
@@ -369,26 +370,22 @@ class UNOGui:
             predictions = self.model.predict(img_array)
             
             predicted_class = np.argmax(predictions, axis=1)
-            confidence = np.max(predictions) * 100
 
-            self.display_result_information.insert(ctk.INSERT,f"P: {self.class_names[predicted_class[0]]}\n, Confidence: {confidence:.1f}\n")
+            self.display_result_information.insert(ctk.INSERT,f"\nP: {self.class_names[predicted_class[0]]}")
 
 
             self.display_result_information.see(ctk.END)
         
 
         elif file:
-            pil_image = Image.open(file)
-            img_array = cv2.cvtColor(np.array(pil_image), cv2.COLOR_BGR2RGB)
-            img_array = cv2.resize(img_array, (self.img_height, self.img_width))
+            tf_image = tf.keras.preprocessing.image.load_img(file, target_size=(self.img_height, self.img_width))
+            img_array = img_to_array(tf_image)
             img_array = np.expand_dims(img_array, axis=0)
-            img_array = img_array.astype("float32") / 255.0
+            img_array = img_array / 255.0
             predictions = self.model.predict(img_array)
             predicted_class = np.argmax(predictions, axis=1)
-            confidence = np.max(predictions) * 100
-
             
-            self.display_result_information.insert(ctk.INSERT,f"Predicted class: {self.class_names[predicted_class[0]]}, Confidence: {confidence:.1f}\n")
+            self.display_result_information.insert(ctk.INSERT,f"\nP: {self.class_names[predicted_class[0]]}")
             self.display_result_information.see(ctk.END)
 
         else:
