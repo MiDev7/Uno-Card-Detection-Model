@@ -13,7 +13,7 @@ class UNOGui:
         self.gui.geometry("1400x900")
         self.camera_on = False
         self.cap = None
-        self.model = tf.keras.models.load_model("model_93.keras")
+        self.model = tf.keras.models.load_model("best_model_07_11_2024_01_43_32.keras")
         self.camera_image = None
         self.img_width = 224
         self.img_height = 224
@@ -300,7 +300,7 @@ class UNOGui:
         """
         This fucntion turn on the camera and modify the status 
         """
-        self.cap = cv2.VideoCapture(0)
+        self.cap = cv2.VideoCapture(1)
         if self.cap.isOpened():
             self.camera_on = True
             self.button_camera.configure(
@@ -392,10 +392,14 @@ class UNOGui:
             self.display_result_information.insert(ctk.INSERT, "No card detected\n")
             self.display_result_information.see(ctk.END)
 
+        return
+
 
 
 
     def open_file(self):
+        print("open_file called")
+        # existing code
         file_path = filedialog.askopenfilename(
             filetypes=[("Image files", "*.png *.jpg *.jpeg *.bmp *.gif")]
         )
@@ -421,6 +425,8 @@ class UNOGui:
                 self.close_camera()
 
             self.detect_card(file_path)
+        
+        return
 
     def run (self):
         self.gui.mainloop()

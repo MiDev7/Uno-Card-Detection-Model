@@ -4,7 +4,9 @@ trial.py
 *.h5
 /Uno Dataset/
 /Uno Dataset copy/
+/Uno Dataset 2/
 *.keras
 
 !model_93.keras
-.DS_Store
+.DS_Stor
+!best_model_07_11_2024_01_43_32.kerase
