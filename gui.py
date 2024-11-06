@@ -240,7 +240,7 @@ class UNOGui:
             font=ctk.CTkFont(family="Montserrat", size=16),
             width=400,
             height=52,
-            text="Start File",
+            text="Select File",
             command=self.open_file
         )
         
@@ -356,7 +356,7 @@ class UNOGui:
             
             if not rect:
                 self.display_result_information.insert(ctk.INSERT,
-                                                       "An error occurred while capturing the frame")
+                                                    "An error occurred while capturing the frame")
                 return
             
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
