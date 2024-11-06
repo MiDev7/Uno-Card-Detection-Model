@@ -22,7 +22,7 @@
 
 
 # How to use the gui?
-> make sure to follow these stpes
+> Make sure to follow these steps
 
 #### Step 1: 
     Run the gui.py file and enlarge screen
